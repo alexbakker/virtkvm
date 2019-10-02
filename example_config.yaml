@@ -1,0 +1,26 @@
+libvirt:
+  uri: "qemu:///system"
+  domain: "nt10"
+http:
+  address: "192.168.100.1:5001"
+  security:
+    enabled: true
+    secret: "xxxxxxxxxxxxxxxx"
+devices:
+  # keyboard
+  - vendor: 0x046d
+    product: 0xc08b
+  # mouse
+  - vendor: 0x2516
+    product: 0x001a
+displays:
+  # main display
+  - bus: 6
+    feature: 0x60
+    host: 0x03
+    guest: 0x11
+  # secondary display
+  - bus: 4
+    feature: 0x60
+    host: 0x04
+    guest: 0x03
