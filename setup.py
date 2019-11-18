@@ -10,8 +10,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         "flask",
-        "libvirt-python"
-        "pyyaml"
+        "libvirt-python",
+        "pyyaml",
         "xmltodict"
     ],
     entry_points={
