@@ -33,12 +33,18 @@ class HTTPConfig:
     def secret(self) -> str:
         return self._security["secret"]
 
+class CommandsConfig:
+    def __init__(self, data: dict):
+        self.host_commands: List[str] = data.get("host", [])
+        self.guest_commands: List[str] = data.get("guest", [])
+
 class Config:
     def __init__(self, data: dict):
         self.http = HTTPConfig(data["http"])
         self.devices = [(d["vendor"], d["product"]) for d in data["devices"]]
         self.displays = data["displays"]
         self.libvirt = LibvirtConfig(data["libvirt"])
+        self.commands = CommandsConfig(data.get("commands", {}))
 
     @staticmethod
     def load(filename: str):
@@ -107,14 +113,22 @@ class Switch:
             "setvcp", hex(display["feature"]), hex(ident)
         ])
 
+    @staticmethod
+    def _call_commands(command: str):
+        return subprocess.call(command, shell=True)
+
     def switch_to_host(self):
         for display in self.config.displays:
             self._call_dccutil(display, display["host"])
+        for command in self.config.commands.host_commands:
+            self._call_commands(command)
         self.virt.detach_devices(self.config.devices)
 
     def switch_to_guest(self):
         for display in self.config.displays:
             self._call_dccutil(display, display["guest"])
+        for command in self.config.commands.guest_commands:
+            self._call_commands(command)
         self.virt.attach_devices(self.config.devices)
 
 switch: Switch = None
