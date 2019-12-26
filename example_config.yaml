@@ -24,3 +24,9 @@ displays:
     feature: 0x60
     host: 0x04
     guest: 0x03
+commands:
+  guest:
+    - echo switch to guest
+  host:
+    - echo switch to host
+
