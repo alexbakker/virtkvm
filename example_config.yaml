@@ -2,6 +2,7 @@ libvirt:
   uri: "qemu:///system"
   domain: "nt10"
 http:
+  ipversion: 4
   address: "192.168.100.1:5001"
   security:
     enabled: true

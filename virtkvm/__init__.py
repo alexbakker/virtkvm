@@ -20,7 +20,11 @@ class LibvirtConfig:
 
 class HTTPConfig:
     def __init__(self, data: dict):
-        addr = data["address"].split(":")
+        ipv = int(data.get("ipversion", 4))
+        if ipv == 6:
+            addr = data["address"][1:].split(']:')
+        else:
+            addr = data["address"].split(":")
         self.host: str = addr[0]
         self.port: int = int(addr[1])
         self._security = data["security"]
