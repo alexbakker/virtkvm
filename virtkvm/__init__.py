@@ -20,8 +20,8 @@ class LibvirtConfig:
 
 class HTTPConfig:
     def __init__(self, data: dict):
-        addr = data["address"].split(":")
-        self.host: str = addr[0]
+        addr = data["address"].rsplit(':', maxsplit=1)
+        self.host: str = addr[0].strip('[]')
         self.port: int = int(addr[1])
         self._security = data["security"]
 
