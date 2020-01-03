@@ -123,7 +123,7 @@ class Switch:
         self.virt = Virt(config.libvirt.uri, config.libvirt.domain)
 
     def _call_dccutil(self, display: dict, ident: int):
-        if(self.config.kvm.usesudo):
+        if self.config.kvm.usesudo:
             return subprocess.call([
                 "sudo",
                 "ddcutil",
