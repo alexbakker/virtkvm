@@ -38,6 +38,19 @@ class CommandsConfig:
         self.host_commands: List[str] = data.get("host", [])
         self.guest_commands: List[str] = data.get("guest", [])
 
+class KvmConfig:
+    def __init__(self, data:dict):
+        self._checkguest = data["checkguest"]
+        self._usesudo = data["usesudo"]
+        
+    @property
+    def checkguest(self) -> bool:
+        return self._checkguest
+
+    @property
+    def usesudo(self) -> bool:
+        return self._usesudo
+
 class Config:
     def __init__(self, data: dict):
         self.http = HTTPConfig(data["http"])
@@ -45,6 +58,7 @@ class Config:
         self.displays = data["displays"]
         self.libvirt = LibvirtConfig(data["libvirt"])
         self.commands = CommandsConfig(data.get("commands", {}))
+        self.kvm = KvmConfig(data["kvm"])
 
     @staticmethod
     def load(filename: str):
@@ -65,6 +79,9 @@ class Virt:
                 devs.append(dev)
 
         return devs
+
+    def check_running(self) -> bool:
+        return self._dom.isActive()
 
     @staticmethod
     def get_device_ids(desc: dict) -> Tuple[int, int]:
@@ -105,13 +122,20 @@ class Switch:
         self.config = config
         self.virt = Virt(config.libvirt.uri, config.libvirt.domain)
 
-    @staticmethod
-    def _call_dccutil(display: dict, ident: int):
-        return subprocess.call([
-            "ddcutil",
-            "--bus", str(display["bus"]),
-            "setvcp", hex(display["feature"]), hex(ident)
-        ])
+    def _call_dccutil(self, display: dict, ident: int):
+        if(self.config.kvm.usesudo):
+            return subprocess.call([
+                "sudo",
+                "ddcutil",
+                "--bus", str(display["bus"]),
+                "setvcp", hex(display["feature"]), hex(ident)
+            ])
+        else:
+            return subprocess.call([
+                "ddcutil",
+                "--bus", str(display["bus"]),
+                "setvcp", hex(display["feature"]), hex(ident)
+            ])
 
     @staticmethod
     def _call_commands(command: str):
@@ -125,11 +149,14 @@ class Switch:
         self.virt.detach_devices(self.config.devices)
 
     def switch_to_guest(self):
-        for display in self.config.displays:
-            self._call_dccutil(display, display["guest"])
-        for command in self.config.commands.guest_commands:
-            self._call_commands(command)
-        self.virt.attach_devices(self.config.devices)
+        if not self.config.kvm.checkguest or self.virt.check_running():
+            for display in self.config.displays:
+                self._call_dccutil(display, display["guest"])
+            for command in self.config.commands.guest_commands:
+                self._call_commands(command)
+            self.virt.attach_devices(self.config.devices)
+        else:
+            print("The guest is not running, not switching")
 
 switch: Switch = None
 app = Flask(__name__)
