@@ -49,5 +49,5 @@ will toggle the KVM when Win+Shift+~ is pressed:
 
 ```autohotkey
 #+~::
-Run, PowerShell -WindowStyle Hidden "Invoke-RestMethod -Method POST -Uri 'http://192.168.100.1:5000/switch' @{'X-Secret' = 'xxxxxxxxxxxxxxxx'} -Body '{\"to\": \"host\"}' -ContentType 'application/json'"
+Run, PowerShell -WindowStyle Hidden "Invoke-RestMethod -Method POST -Uri 'http://192.168.100.1:5000/switch' -Headers @{'X-Secret' = 'xxxxxxxxxxxxxxxx'} -Body '{\"to\": \"host\"}' -ContentType 'application/json'"
 ```
