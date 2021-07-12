@@ -1,3 +1,6 @@
+kvm:
+  usesudo: false
+  checkguest: true
 libvirt:
   uri: "qemu:///system"
   domain: "nt10"
@@ -29,4 +32,3 @@ commands:
     - echo switch to guest
   host:
     - echo switch to host
-
